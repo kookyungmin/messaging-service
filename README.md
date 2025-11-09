@@ -16,3 +16,22 @@ Websocket 을 활용한 실시간 메세징 서비스
 - [docker] 20.10.12
 - [mysql] 8
 - [redis] 7.2.5
+
+## Local 실행 환경
+### MySQL, Redis start
+`/bin/docker-compose-up.sh`
+
+### MySQL, Redis stop
+`/bin/docker-compose-down.sh`
+
+### Spring Boot application 실행
+`./gradlew bootRun`
+
+## docker 실행 상태에서 DB/Redis 접근
+### MySQL
+`docker exec -it ms-mysql bash` \
+`mysql -u local -p`
+
+### Redis
+`docker exec -it ms-redis sh` \
+`redis-cli`
