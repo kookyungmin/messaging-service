@@ -11,6 +11,7 @@ import net.happykoo.chat.entity.Room;
 import net.happykoo.chat.repository.MemberRoomMappingRepository;
 import net.happykoo.chat.repository.MessageRepository;
 import net.happykoo.chat.repository.RoomRepository;
+import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,6 +44,11 @@ public class ChatService {
     public Boolean joinChatRoom(Member member, Long roomId) {
         if (memberRoomMappingRepository.existsByMemberIdAndRoomId(member.getId(), roomId)) {
             log.info("이미 참여한 채팅방입니다.");
+            MemberRoomMapping mapping = memberRoomMappingRepository.findByMemberIdAndRoomId(member.getId(), roomId)
+                    .orElseThrow(IllegalArgumentException::new);
+
+            mapping.updateLastCheckedAt();
+            memberRoomMappingRepository.save(mapping);
             return false;
         }
 
@@ -86,14 +92,7 @@ public class ChatService {
         return ChatMessage.from(message);
     }
 
-    @Transactional
-    public List<ChatMessage> getMassageByRoomId(Member member, Long roomId) {
-        MemberRoomMapping mapping = memberRoomMappingRepository.findByMemberIdAndRoomId(member.getId(), roomId)
-                .orElseThrow(IllegalArgumentException::new);
-
-        mapping.updateLastCheckedAt();
-        memberRoomMappingRepository.save(mapping);
-
+    public List<ChatMessage> getMassageByRoomId(Long roomId) {
         return messageRepository.findAllByRoomId(roomId)
                 .stream()
                 .map(ChatMessage::from)
@@ -104,6 +103,7 @@ public class ChatService {
         MemberRoomMapping mapping = MemberRoomMapping.builder()
                 .room(room)
                 .member(member)
+                .lastCheckedAt(LocalDateTime.now())
                 .build();
         memberRoomMappingRepository.save(mapping);
     }

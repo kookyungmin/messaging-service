@@ -39,7 +39,7 @@ public class ChatController {
     }
 
     @GetMapping("/{roomId}/messages")
-    public List<ChatMessage> getMessageList(@AuthenticationPrincipal CustomOAuth2User user, @PathVariable Long roomId) {
-        return chatService.getMassageByRoomId(user.getMember(), roomId);
+    public List<ChatMessage> getMessageList(@PathVariable Long roomId) {
+        return chatService.getMassageByRoomId(roomId);
     }
 }
