@@ -2,6 +2,8 @@
 
 Websocket 을 활용한 실시간 메세징 서비스
 
+구조는 심플한 구조로 구성되며, Websocket 과 Stomp 사용 방법에 집중
+
 <!-- prettier-ignore-start -->
 ![SpringBoot](https://shields.io/badge/springboot-black?logo=springboot&style=for-the-badge%22)
 ![Docker](https://shields.io/badge/docker-black?logo=docker&style=for-the-badge%22)
