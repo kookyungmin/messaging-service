@@ -1,7 +1,9 @@
 package net.happykoo.chat.controller;
 
 import lombok.RequiredArgsConstructor;
+import net.happykoo.chat.dto.ChatMessage;
 import net.happykoo.chat.dto.ChatRoomResponse;
+import net.happykoo.chat.entity.Message;
 import net.happykoo.chat.entity.Room;
 import net.happykoo.chat.service.ChatService;
 import net.happykoo.chat.vos.CustomOAuth2User;
@@ -34,5 +36,10 @@ public class ChatController {
     @GetMapping
     public List<ChatRoomResponse> getChatRoomList(@AuthenticationPrincipal CustomOAuth2User user) {
         return chatService.getChatRoomList(user.getMember());
+    }
+
+    @GetMapping("/{roomId}/messages")
+    public List<ChatMessage> getMessageList(@PathVariable Long roomId) {
+        return chatService.getMassageByRoomId(roomId);
     }
 }

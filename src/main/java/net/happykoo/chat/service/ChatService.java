@@ -2,11 +2,14 @@ package net.happykoo.chat.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.happykoo.chat.dto.ChatMessage;
 import net.happykoo.chat.dto.ChatRoomResponse;
 import net.happykoo.chat.entity.Member;
 import net.happykoo.chat.entity.MemberRoomMapping;
+import net.happykoo.chat.entity.Message;
 import net.happykoo.chat.entity.Room;
 import net.happykoo.chat.repository.MemberRoomMappingRepository;
+import net.happykoo.chat.repository.MessageRepository;
 import net.happykoo.chat.repository.RoomRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +24,7 @@ import java.util.Set;
 public class ChatService {
     private final RoomRepository roomRepository;
     private final MemberRoomMappingRepository memberRoomMappingRepository;
+    private final MessageRepository messageRepository;
 
     public ChatRoomResponse createChatRoom(Member member, String title) {
         Room room = Room.builder()
@@ -64,6 +68,25 @@ public class ChatService {
         return memberRoomMappings.stream()
                 .map(MemberRoomMapping::getRoom)
                 .map(ChatRoomResponse::from)
+                .toList();
+    }
+
+    public ChatMessage createMessage(Member member, Long roomId, String text) {
+        Room room = roomRepository.findById(roomId).orElseThrow(IllegalArgumentException::new);
+        Message message = Message.builder()
+                .member(member)
+                .room(room)
+                .text(text)
+                .createdAt(LocalDateTime.now())
+                .build();
+        messageRepository.save(message);
+        return ChatMessage.from(message);
+    }
+
+    public List<ChatMessage> getMassageByRoomId(Long roomId) {
+        return messageRepository.findAllByRoomId(roomId)
+                .stream()
+                .map(ChatMessage::from)
                 .toList();
     }
 

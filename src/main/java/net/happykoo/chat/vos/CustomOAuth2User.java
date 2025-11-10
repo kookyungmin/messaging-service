@@ -28,7 +28,6 @@ public class CustomOAuth2User implements OAuth2User {
 
     @Override
     public String getName() {
-        //TODO: 원래는 user id 가 되어야함 -> 예제를 위해 임시
-        return member.getNickName();
+        return member.getEmail();
     }
 }
