@@ -2,7 +2,6 @@ package net.happykoo.chat.dto;
 
 import net.happykoo.chat.entity.Room;
 
-import java.io.Serializable;
 import java.time.LocalDateTime;
 
 public record ChatRoomDto(
@@ -11,7 +10,7 @@ public record ChatRoomDto(
     Integer memberCount,
     boolean hasNewMessage,
     LocalDateTime createdAt
-) implements Serializable {
+) {
     public static ChatRoomDto from(Room room) {
         return from(room, false);
     }
