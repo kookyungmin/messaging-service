@@ -2,6 +2,7 @@ package net.happykoo.chat.service;
 
 import lombok.RequiredArgsConstructor;
 import net.happykoo.chat.constant.GenderType;
+import net.happykoo.chat.constant.UserRole;
 import net.happykoo.chat.entity.Member;
 import net.happykoo.chat.repository.MemberRepository;
 import net.happykoo.chat.vos.CustomOAuth2User;
@@ -42,7 +43,7 @@ public class Custom0Auth2UserService extends DefaultOAuth2UserService {
                 .phoneNumber((String) attributeMap.get("phone_number"))
                 .gender(GenderType.valueOf(((String) attributeMap.get("gender")).toUpperCase()))
                 .birthDate(getBirthDate(attributeMap))
-                .role("USER_ROLE")
+                .role(UserRole.USER.getCode())
                 .build();
 
         return member;

@@ -5,7 +5,7 @@ const stompClient = new StompJs.Client({
 stompClient.onConnect = (frame) => {
   setConnected(true);
   showChatrooms();
-  stompClient.subscribe('/sub/chats/news',
+  stompClient.subscribe('/sub/chats/updates',
     (chatMessage) => {
       toggleNewMessageIcon(JSON.parse(chatMessage.body), true);
     });

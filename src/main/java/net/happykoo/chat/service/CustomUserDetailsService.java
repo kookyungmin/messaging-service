@@ -25,7 +25,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         Member member = memberRepository.findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("계정이 존재하지 않습니다."));
 
-        return new CustomUserDetails(member);
+        return new CustomUserDetails(member, null);
     }
 
     public MemberDto saveMember(MemberDto dto) {

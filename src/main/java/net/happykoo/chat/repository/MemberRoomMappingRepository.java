@@ -1,6 +1,7 @@
 package net.happykoo.chat.repository;
 
 import net.happykoo.chat.entity.MemberRoomMapping;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 

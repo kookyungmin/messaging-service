@@ -20,7 +20,6 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests(request -> request
                         .requestMatchers(HttpMethod.POST, "/consultants").permitAll()
                         .anyRequest().hasRole("CONSULTANT"))
-                .formLogin(Customizer.withDefaults())
                 .csrf(csrf -> csrf.disable());
         return httpSecurity.build();
     }

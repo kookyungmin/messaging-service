@@ -2,7 +2,8 @@ package net.happykoo.chat.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import net.happykoo.chat.dto.ChatMessage;
+import net.happykoo.chat.dto.ChatMessageDto;
+import net.happykoo.chat.dto.ChatRoomDto;
 import net.happykoo.chat.service.ChatService;
 import net.happykoo.chat.vos.CustomOAuth2User;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
@@ -10,9 +11,8 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
-import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
 import org.springframework.stereotype.Controller;
 
 import java.security.Principal;
@@ -27,12 +27,13 @@ public class StompChatController {
 
     @MessageMapping("/chats/{roomId}")
     @SendTo("/sub/chats/{roomId}")
-    public ChatMessage handleMessage(Principal principal, @DestinationVariable Long roomId, @Payload Map<String, String> payload) {
-        CustomOAuth2User user = (CustomOAuth2User) ((OAuth2AuthenticationToken) principal).getPrincipal();
+    public ChatMessageDto handleMessage(Principal principal, @DestinationVariable Long roomId, @Payload Map<String, String> payload) {
+        CustomOAuth2User user = (CustomOAuth2User) ((AbstractAuthenticationToken) principal).getPrincipal();
         String text = payload.get("message");
         log.info("{}: {} sent {}", roomId, user.getName(), text);
         chatService.createMessage(user.getMember(), roomId,text);
-        simpMessagingTemplate.convertAndSend("/sub/chats/news", roomId);
-        return new ChatMessage(user.getMember().getName(), text);
+        ChatRoomDto chatRoomDto = chatService.getChatRoom(roomId);
+        simpMessagingTemplate.convertAndSend("/sub/chats/updates", chatRoomDto);
+        return new ChatMessageDto(user.getMember().getName(), text);
     }
 }

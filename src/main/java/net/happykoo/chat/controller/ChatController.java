@@ -1,10 +1,8 @@
 package net.happykoo.chat.controller;
 
 import lombok.RequiredArgsConstructor;
-import net.happykoo.chat.dto.ChatMessage;
-import net.happykoo.chat.dto.ChatRoomResponse;
-import net.happykoo.chat.entity.Message;
-import net.happykoo.chat.entity.Room;
+import net.happykoo.chat.dto.ChatMessageDto;
+import net.happykoo.chat.dto.ChatRoomDto;
 import net.happykoo.chat.service.ChatService;
 import net.happykoo.chat.vos.CustomOAuth2User;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -19,7 +17,7 @@ public class ChatController {
     private final ChatService chatService;
 
     @PostMapping
-    public ChatRoomResponse createChatRoom(@AuthenticationPrincipal CustomOAuth2User user, @RequestParam String title) {
+    public ChatRoomDto createChatRoom(@AuthenticationPrincipal CustomOAuth2User user, @RequestParam String title) {
         return chatService.createChatRoom(user.getMember(), title);
     }
 
@@ -34,12 +32,12 @@ public class ChatController {
     }
 
     @GetMapping
-    public List<ChatRoomResponse> getChatRoomList(@AuthenticationPrincipal CustomOAuth2User user) {
-        return chatService.getChatRoomList(user.getMember());
+    public List<ChatRoomDto> getChatRoomList(@AuthenticationPrincipal CustomOAuth2User user) {
+        return chatService.getChatRoomListByMember(user.getMember());
     }
 
     @GetMapping("/{roomId}/messages")
-    public List<ChatMessage> getMessageList(@PathVariable Long roomId) {
+    public List<ChatMessageDto> getMessageList(@PathVariable Long roomId) {
         return chatService.getMassageByRoomId(roomId);
     }
 }

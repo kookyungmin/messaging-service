@@ -13,7 +13,7 @@ import java.util.Map;
 @AllArgsConstructor
 public class CustomOAuth2User implements OAuth2User {
     @Getter
-    private Member member;
+    protected Member member;
     private Map<String, Object> attributes;
 
     @Override

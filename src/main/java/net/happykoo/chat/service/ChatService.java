@@ -2,8 +2,8 @@ package net.happykoo.chat.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import net.happykoo.chat.dto.ChatMessage;
-import net.happykoo.chat.dto.ChatRoomResponse;
+import net.happykoo.chat.dto.ChatMessageDto;
+import net.happykoo.chat.dto.ChatRoomDto;
 import net.happykoo.chat.entity.Member;
 import net.happykoo.chat.entity.MemberRoomMapping;
 import net.happykoo.chat.entity.Message;
@@ -11,13 +11,14 @@ import net.happykoo.chat.entity.Room;
 import net.happykoo.chat.repository.MemberRoomMappingRepository;
 import net.happykoo.chat.repository.MessageRepository;
 import net.happykoo.chat.repository.RoomRepository;
-import org.springframework.cglib.core.Local;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Set;
+import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
@@ -27,7 +28,7 @@ public class ChatService {
     private final MemberRoomMappingRepository memberRoomMappingRepository;
     private final MessageRepository messageRepository;
 
-    public ChatRoomResponse createChatRoom(Member member, String title) {
+    public ChatRoomDto createChatRoom(Member member, String title) {
         Room room = Room.builder()
                 .title(title)
                 .createdAt(LocalDateTime.now())
@@ -38,7 +39,7 @@ public class ChatService {
         createChatRoom(member, room);
         room.addMember(member);
 
-        return ChatRoomResponse.from(room);
+        return ChatRoomDto.from(room);
     }
 
     public Boolean joinChatRoom(Member member, Long roomId) {
@@ -69,18 +70,24 @@ public class ChatService {
     }
 
     @Transactional
-    public List<ChatRoomResponse> getChatRoomList(Member member) {
+    public List<ChatRoomDto> getChatRoomListByMember(Member member) {
         List<MemberRoomMapping> memberRoomMappings = memberRoomMappingRepository.findAllByMemberId(member.getId());
         return memberRoomMappings.stream()
                 .map(mapping -> {
                     Room room = mapping.getRoom();
                     boolean hasNewMessage = messageRepository.existsByRoomIdAndCreatedAtAfter(mapping.getRoom().getId(), mapping.getLastCheckedAt());
-                    return ChatRoomResponse.from(room, hasNewMessage);
+                    return ChatRoomDto.from(room, hasNewMessage);
                 })
                 .toList();
     }
 
-    public ChatMessage createMessage(Member member, Long roomId, String text) {
+    @Transactional
+    public Page<ChatRoomDto> getAllChatRoomList(Pageable pageable) {
+        return roomRepository.findAll(pageable)
+                .map(ChatRoomDto::from);
+    }
+
+    public ChatMessageDto createMessage(Member member, Long roomId, String text) {
         Room room = roomRepository.findById(roomId).orElseThrow(IllegalArgumentException::new);
         Message message = Message.builder()
                 .member(member)
@@ -89,13 +96,13 @@ public class ChatService {
                 .createdAt(LocalDateTime.now())
                 .build();
         messageRepository.save(message);
-        return ChatMessage.from(message);
+        return ChatMessageDto.from(message);
     }
 
-    public List<ChatMessage> getMassageByRoomId(Long roomId) {
+    public List<ChatMessageDto> getMassageByRoomId(Long roomId) {
         return messageRepository.findAllByRoomId(roomId)
                 .stream()
-                .map(ChatMessage::from)
+                .map(ChatMessageDto::from)
                 .toList();
     }
 
@@ -106,5 +113,12 @@ public class ChatService {
                 .lastCheckedAt(LocalDateTime.now())
                 .build();
         memberRoomMappingRepository.save(mapping);
+    }
+
+    @Transactional(readOnly = true)
+    public ChatRoomDto getChatRoom(Long roomId) {
+        return roomRepository.findById(roomId)
+                .map(ChatRoomDto::from)
+                .orElseThrow(NoSuchElementException::new);
     }
 }
